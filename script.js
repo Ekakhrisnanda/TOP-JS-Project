@@ -1,59 +1,100 @@
-let playerScore = 0;
-let compScore = 0;
-
-function getPlayerChoice() {
-    return capitalize(prompt("Choose Rock, Paper, or Scissor? ")); 
-}
+let playerWin = 0;
+let compWin = 0;
+let gameWinner = '';
 
 function getComputerChoice() {
-    let comp = Math.random();
+    const comp = ['rock', 'paper', 'scissor'];
 
-    if (comp < 0.34) {
-        comp = "Rock";    
-    } else if (comp >= 0.34 && comp < 0.67) {
-        comp = "Paper";
-    } else {
-        comp = "Scissor";
-    }
-
-    return comp;
-}
-
-function capitalize(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    let random = comp[Math.floor(Math.random() * comp.length)];
+    
+    return random;
 }
 
 function playRound(playerSelection, compSelection) {
-    if ((playerSelection == "Rock" && compSelection == "Scissor") ||
-        (playerSelection == "Scissor" && compSelection == "Paper") ||
-        (playerSelection == "Paper" && compSelection == "Rock")) {
-
-        playerScore++;    
+    if ((playerSelection == "rock" && compSelection == "scissor") ||
+        (playerSelection == "scissor" && compSelection == "paper") ||
+        (playerSelection == "paper" && compSelection == "rock")) {
+        playerWin++;    
         return "You win, " + playerSelection + " beats " + compSelection;
     } else if (playerSelection == compSelection) {
         return "It's a tie, you both chose " + playerSelection;
     } else {
-        compScore++;
+        compWin++;
         return "You lose, " + compSelection + " beats " + playerSelection;
     }
 }
 
-function game() {
-    for (let i = 0; i < 5; i++) {
-        let playerSelection = getPlayerChoice()
-        let compSelection = getComputerChoice()
-        console.log(playRound(playerSelection, compSelection))
-    }    
+const buttons = document.querySelectorAll('button');
+buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        const computerSelection = getComputerChoice();
+        const playerSelection = button.className;
+        battleText.textContent = playRound(playerSelection, computerSelection);
+        computerScore.textContent = 'Computer Score = ' + compWin;
+        playerScore.textContent = 'Player Score = ' + playerWin;
+        winner();
+    });
+});
 
-    if (playerScore > compScore) {
-        return "You are the winner"
-    } else if (playerScore === compScore) {
-        return "Tie game"
-    } else {
-        return "Loser"
-    }
+const container = document.querySelector('#buttons-container');
+const scoreDiv = document.createElement('div');
+container.appendChild(scoreDiv);
+
+const computerScore = document.createElement('p');
+computerScore.style.color = 'orange';
+computerScore.textContent = 'Computer Score = ' + compWin;
+scoreDiv.appendChild(computerScore);
+
+const playerScore = document.createElement('p');
+playerScore.style.color = 'blue';
+playerScore.textContent = 'Player Score = ' + playerWin;
+scoreDiv.appendChild(playerScore);
+
+const battleText = document.createElement('p');
+battleText.style.color = 'black';
+scoreDiv.appendChild(battleText);
+
+const gameWinnerText = document.createElement('p');
+gameWinnerText.textContent = gameWinner;
+scoreDiv.appendChild(gameWinnerText);
+
+function getPlayerWins() {
+    gameWinner = 'YOU ARE THE CHAMPION';
+    gameWinnerText.style.color = 'green'
+    gameWinnerText.textContent = gameWinner;
 }
 
-console.log(game())
+function getCompWins() {
+    gameWinner = 'COMPUTER BEATS YOUR ASS';
+    gameWinnerText.style.color = 'red'
+    gameWinnerText.textContent = gameWinner;
+}
 
+const disableButton = function() {
+    const disabledButton = document.querySelectorAll('button');
+    disabledButton.forEach((button) => {
+        button.disabled = true;
+    })
+}
 
+const playAgainButton = function() {
+    const playAgainButton = document.createElement('button');
+    playAgainButton.textContent = 'Play Again?'
+    scoreDiv.appendChild(playAgainButton);
+
+    playAgainButton.addEventListener('click', () => {
+        location.reload();
+    })
+}
+
+const winner = function() {
+    if (playerWin == 5) {
+        getPlayerWins();
+        disableButton();
+        playAgainButton();
+    } else if (compWin == 5) {
+        getCompWins();
+        disableButton();
+        playAgainButton();
+    }
+}
